@@ -1,0 +1,44 @@
+#===============================================================================
+#
+#         FILE: /Users/Alec/Documents/Bioinformatics/MDV_Project/sample_organization/scripts/tissue_samples_main_documentation.txt
+#
+#        USAGE: for documentation purposes, scripts inside
+#
+#  DESCRIPTION:  This script serves as a step by step documentation script about tissue sampling, organization, storage, and testing
+#                
+# REQUIREMENTS:  ---
+#        NOTES:  ---
+#       AUTHOR:  Alec Steep, steepale@msu.edu
+#  AFFILIATION:  Michigan State University (MSU), East Lansing, MI, United States
+#				         USDA ARS Avian Disease and Oncology Lab (ADOL), East Lansing, MI, United States
+#				         Technical University of Munich (TUM), Weihenstephan, Germany
+#      VERSION:  1.0
+#      CREATED:  2017.05.05
+#     REVISION:  
+#===============================================================================
+
+# Permanent PROJECT DIRECTORY (Alec's Macbook)
+cd /Users/Alec/Documents/Bioinformatics/MDV_Project/sample_organization
+
+# Tissue samples were collected in the Summer of 2014
+# Sample collection data was recorded on necropsy note cards, PDFs of each card can be found in
+# ./data/necropsy_cards
+# Tissue sampling, organization, storage, and testing were recorded on excel files. These files are adequate
+# but I would like to reorganize the data into tab delimited test files for organization purposes and data parsing
+# Location of excel file: ./data/Tumor_Sampling_12_02_16.xlsx
+
+#Band No.	Pen	Death Date	D/K	Gender	Tumors?	Control (0)	DNA	RNA	Control	DNA	RNA	Lesion	DNA	RNA	Cyto	Homogeneity
+
+# Create a tab seperated sample of tissue collection
+
+python ./scripts/reformat_tissue_organization.py \
+
+
+
+
+
+# Columns
+'SAMPLE_ID'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'BIO_DATA'+'\t'+'TUMOR_SCORE'+'\n'
+
+
+
