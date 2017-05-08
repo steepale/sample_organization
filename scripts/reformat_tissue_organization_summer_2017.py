@@ -21,9 +21,10 @@ for line in open(infile):
 		outfile.write('##MORT_TYPE'+'\t'+'Mortality type, whether bird died from Mareks Disease or was euthanized'+'\n')
 		outfile.write('##SEX'+'\t'+'The sex of the bird'+'\n')
 		outfile.write('##TUMOR_NUM'+'\t'+'Number of COLLECTED tumors from bird'+'\n')
-		outfile.write('##SAMPLING'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
+		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
 		outfile.write('##TUMOR_SCORE'+'\t'+'Grade of tumor; Scale of 1-3, 3 represents most homologous largest tumor in appearence, interpretation by eye'+'\n')
-		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'SAMPLING'+'\t'+'TUMOR_SCORE'+'\n')
+		outfile.write('##COHORT'+'\t'+'Experimental cohort'+'\n')	
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'STORAGE'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\n')
 	# collect stats if not header
 	elif line[0] != '#':
 		line = line.rstrip()
@@ -44,6 +45,7 @@ for line in open(infile):
 		tube_label = 'na'
 		pen_id = 'na'
 		mort_type = 'euthanized'
+		cohort = 'summer_2017'
 		# Create lists of all delimited fields
 		tumor_list = in_tumor.split(';')
 		tumor_score_list = in_tumor_score.split(';')
@@ -61,7 +63,7 @@ for line in open(infile):
 			tumor_score = 'na'
 			sampling = ';'.join(map(str,sampling_list))
 			# Write the data to outfile
-			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\n')
+			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\t'+cohort+'\n')
 		# Iterate through the tumor samples
 		for t_i, t in enumerate(tumor_list):
 			sample_id = bird_id + '-T_' + str(t_i + 1)
@@ -76,6 +78,6 @@ for line in open(infile):
 				tumor_score = tumor_score_list[t_i]
 			sampling = ';'.join(map(str,sampling_list))
 			# Write the data to outfile
-			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\n')
+			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\t'+cohort+'\n')
 # Close outfile
 outfile.close()

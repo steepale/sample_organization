@@ -57,9 +57,10 @@ for line in open(infile):
 		outfile.write('##MORT_TYPE'+'\t'+'Mortality type, whether bird died from Mareks Disease or was euthanized'+'\n')
 		outfile.write('##SEX'+'\t'+'The sex of the bird'+'\n')
 		outfile.write('##TUMOR_NUM'+'\t'+'Number of COLLECTED tumors from bird'+'\n')
-		outfile.write('##SAMPLING'+'\t'+'The biological data that was collected from tissue; DNA, RNA, cytogenetics'+'\n')
+		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
 		outfile.write('##TUMOR_SCORE'+'\t'+'Grade of tumor; Scale of 1-3, 3 represents most homologous largest tumor in appearence, interpretation by eye'+'\n')
-		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'SAMPLING'+'\t'+'TUMOR_SCORE'+'\n')
+		outfile.write('##COHORT'+'\t'+'Experimental cohort'+'\n')
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'STORAGE'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\n')
 	# collect stats if not header
 	elif line[0] != '#':
 		line = line.rstrip()
@@ -108,6 +109,7 @@ for line in open(infile):
 		t7_rna = col[41]
 		t7_cyto = col[42]
 		t7_score = col[43]
+		cohort = 'summer_2014'
 		# Create a list of tumor calls
 		t_list = [t1, t2, t3, t4, t5, t6, t7]
 		#Create a list of tumors
@@ -154,7 +156,7 @@ for line in open(infile):
 				elif mort_type == 'D':
 					mort_type = 'disease'
 				# Write germline outputs
-				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\n')
+				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 		# Iterate through tumors and write them to output file
 		for t_i, tumor in enumerate(t_list):
 			sample_id = bird_id + '-' + str(t_i + 1)
@@ -213,9 +215,7 @@ for line in open(infile):
 				elif mort_type == 'D':
 					mort_type = 'disease'
 				# Write germline outputs
-				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\n')
-
-
+				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 # Close outfile
 outfile.close()
 #################################################
@@ -253,9 +253,10 @@ for line in open(infile):
 		outfile.write('##MORT_TYPE'+'\t'+'Mortality type, whether bird died from Mareks Disease or was euthanized'+'\n')
 		outfile.write('##SEX'+'\t'+'The sex of the bird'+'\n')
 		outfile.write('##TUMOR_NUM'+'\t'+'Number of COLLECTED tumors from bird'+'\n')
-		outfile.write('##SAMPLING'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
+		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
 		outfile.write('##TUMOR_SCORE'+'\t'+'Grade of tumor; Scale of 1-3, 3 represents most homologous largest tumor in appearence, interpretation by eye'+'\n')
-		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'SAMPLING'+'\t'+'TUMOR_SCORE'+'\n')
+		outfile.write('##COHORT'+'\t'+'Experimental cohort'+'\n')	
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'STORAGE'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\n')
 	# collect stats if not header
 	elif line[0] != '#':
 		line = line.rstrip()
@@ -276,6 +277,7 @@ for line in open(infile):
 		tube_label = 'na'
 		pen_id = 'na'
 		mort_type = 'euthanized'
+		cohort = 'summer_2017'
 		# Create lists of all delimited fields
 		tumor_list = in_tumor.split(';')
 		tumor_score_list = in_tumor_score.split(';')
@@ -293,7 +295,7 @@ for line in open(infile):
 			tumor_score = 'na'
 			sampling = ';'.join(map(str,sampling_list))
 			# Write the data to outfile
-			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\n')
+			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\t'+cohort+'\n')
 		# Iterate through the tumor samples
 		for t_i, t in enumerate(tumor_list):
 			sample_id = bird_id + '-T_' + str(t_i + 1)
@@ -308,7 +310,7 @@ for line in open(infile):
 				tumor_score = tumor_score_list[t_i]
 			sampling = ';'.join(map(str,sampling_list))
 			# Write the data to outfile
-			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\n')
+			outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+tumor_num+'\t'+sampling+'\t'+tumor_score+'\t'+cohort+'\n')
 # Close outfile
 outfile.close()
 #################################
@@ -317,12 +319,92 @@ outfile.close()
 (grep "^#" ./data/tissue_collection_and_sampling_summer_2014.txt; \
 grep -v "^#" ./data/tissue_collection_and_sampling_summer_2014.txt; \
 grep -v "^#" ./data/tissue_collection_and_sampling_summer_2017.txt) > \
+./data/tissue_collection_and_sampling_2014_2017.int
+
+# Prioritize samples based on these filters:
+# filter_1: All samples that underwent DNA-sequencing from Summer 2014 cohort (plus matching germlines)
+# filter_2: All samples that underwent RNA-sequencing from Summer 2014 cohort (plus matching germlines)
+# filter_3: Gonadal tumors with tumor score greater than or equal to 2 (plus matching germlines)
+# filter_4: The tumors from birds that possess multiple high quality tumors (plus matching germlines)
+# filter_5: Tumors that have a tumor score of 3 regardless of tissue (plus matching germlines)
+# filter_6: Tumors that have a tumor score of 2 regardless of tissue (plus matching germlines)
+# filter_7: Remaining samples (plus matching germlines)
+
+python ./scripts/prioritize_tissue_samples_for_sampling.py \
+./data/tissue_collection_and_sampling_2014_2017.int \
 ./data/tissue_collection_and_sampling_2014_2017.txt
 
+# ./scripts/prioritize_tissue_samples_for_sampling.py
+##################################
+import sys
+import re
+
+# infile
+infile = sys.argv[1]
+
+# outfile
+outfile = open(sys.argv[2], 'w')
+
+# Iterate through infile and collect stats for filters
+for line in open(infile):
+	# Write a header
+	if line [0] == '#' and line[1] != '#':
+		outfile.write('##SAMPLE_ID'+'\t'+'Collected tissue sample identification'+'\n')
+		outfile.write('##TUBE_LABEL'+'\t'+'How sample was labeled on storage tube'+'\n')
+		outfile.write('##SEX'+'\t'+'The sex of the bird'+'\n')
+		outfile.write('##GERM_TUM'+'\t'+'Whether sample is characterized as germline or somatic'+'\n')
+		outfile.write('##TISSUE'+'\t'+'Type of collected tissue'+'\n')
+		outfile.write('##TUMOR_NUM'+'\t'+'Number of COLLECTED tumors from bird'+'\n')
+		outfile.write('##TUMOR_SCORE'+'\t'+'Grade of tumor; Scale of 1-3, 3 represents most homologous largest tumor in appearence, interpretation by eye'+'\n')
+		outfile.write('##COHORT'+'\t'+'Experimental cohort'+'\n')
+		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics, liquid_nitrogen, immunohistochem'+'\n')
+		outfile.write('##SAMPLING'+'\t'+'The actual biological tests that have been performed from sample; dna_seq, affy_array, rna_seq, cytogenetics, immunohistochem'+'\n')
+		outfile.write('##FILTER'+'\t'+'Justification for priority score'+'\n')
+		outfile.write('##PRIORITY'+'\t'+'Priority score (highest priority starts at 1)'+'\n')
+		outfile.write('###FILTERS:'+'\n')
+		outfile.write('###filter_1:'+'\t'+'All samples that underwent DNA-sequencing from Summer 2014 cohort (plus matching germlines)'+'\n')
+		outfile.write('###filter_2:'+'\t'+'All samples that underwent RNA-sequencing from Summer 2014 cohort (plus matching germlines)'+'\n')
+		outfile.write('###filter_3:'+'\t'+'Gonadal tumors with tumor score greater than or equal to 2 (plus matching germlines)'+'\n')
+		outfile.write('###filter_4:'+'\t'+'The tumors from birds that possess multiple high quality tumors (plus matching germlines)'+'\n')
+		outfile.write('###filter_5:'+'\t'+'Tumors that have a tumor score of 3 regardless of tissue (plus matching germlines)'+'\n')
+		outfile.write('###filter_6:'+'\t'+'Tumors that have a tumor score of 2 regardless of tissue (plus matching germlines)'+'\n')
+		outfile.write('###filter_7:'+'\t'+'Remaining samples (plus matching germlines)'+'\n')
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'SEX'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'TUMOR_NUM'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\t'+'STORAGE'+'\t'+'SAMPLING'+'\t'+'FILTER'+'\t'+'PRIORITY'+'\n')
+	elif line[0] != '#':
+		line = line.rstrip()
+		col = line.split('\t')
+		sample_id = col[0]
+		tube_label = col[1]
+		germ_tum = col[2]
+		tissue = col[3]
+		bird_id = col[4]
+		pen_id = col[5]
+		dod = col[6]
+		mort_type = col[7]
+		sex = col[8]
+		tumor_num = col[9]
+		# Adjust storage
+		storage = set(col[10].split(';'))
+		if 'immunohistochem' in storage:
+			storage.discard('immunohistochem')
+		storage = ';'.join(map(str,storage))
+		# Create a set for sampling
+		sampling = set()
+		# Read database files for each sample that has undergone specific test
+		
+		tumor_score = col[11]
+		cohort = col[12]
 
 
+		# Write to outfile
+		outfile.write(sample_id+'\t'+tube_label+'\t'+sex+'\t'+germ_tum+'\t'+tissue+'\t'+tumor_num+'\t'+tumor_score+'\t'+cohort+'\t'+storage+'\n')
+#Close outfile
+outfile.close()
+##################################
 
 
+# Remove the intermediate file
+rm ./data/tissue_collection_and_sampling_2014_2017.int
 
 
 

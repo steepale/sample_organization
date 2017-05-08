@@ -7,6 +7,8 @@ infile = sys.argv[1]
 # outfile
 outfile = open(sys.argv[2], 'w')
 
+bioreps_set = ['017834-2', '017842-2', '017901-2', '017911-1']
+
 # Iterate through the infile, collect stats, and reorganize data
 for line in open(infile):
 	# Write output header
@@ -21,11 +23,13 @@ for line in open(infile):
 		outfile.write('##MORT_TYPE'+'\t'+'Mortality type, whether bird died from Mareks Disease or was euthanized'+'\n')
 		outfile.write('##SEX'+'\t'+'The sex of the bird'+'\n')
 		outfile.write('##TUMOR_NUM'+'\t'+'Number of COLLECTED tumors from bird'+'\n')
-		outfile.write('##SAMPLING'+'\t'+'The biological data that was collected from tissue; DNA, RNA, cytogenetics'+'\n')
+		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics'+'\n')
 		outfile.write('##TUMOR_SCORE'+'\t'+'Grade of tumor; Scale of 1-3, 3 represents most homologous largest tumor in appearence, interpretation by eye'+'\n')
-		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'SAMPLING'+'\t'+'TUMOR_SCORE'+'\n')
+		outfile.write('##COHORT'+'\t'+'Experimental cohort'+'\n')
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'STORAGE'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\n')
 	# collect stats if not header
 	elif line[0] != '#':
+		make_dup = 'no'
 		line = line.rstrip()
 		col = line.split('\t')
 		bird_id = col[0]
@@ -72,6 +76,7 @@ for line in open(infile):
 		t7_rna = col[41]
 		t7_cyto = col[42]
 		t7_score = col[43]
+		cohort = 'summer_2014'
 		# Create a list of tumor calls
 		t_list = [t1, t2, t3, t4, t5, t6, t7]
 		#Create a list of tumors
@@ -118,10 +123,13 @@ for line in open(infile):
 				elif mort_type == 'D':
 					mort_type = 'disease'
 				# Write germline outputs
-				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\n')
+				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 		# Iterate through tumors and write them to output file
 		for t_i, tumor in enumerate(t_list):
+			make_dup = 'no'
 			sample_id = bird_id + '-' + str(t_i + 1)
+			if sample_id in bioreps_set:
+				make_dup = 'yes'
 			# Filter out samples with no controls
 			if tumor != 'NA':	
 				# Tube label
@@ -177,8 +185,10 @@ for line in open(infile):
 				elif mort_type == 'D':
 					mort_type = 'disease'
 				# Write germline outputs
-				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\n')
-
-
+				if make_dup == 'yes':
+					outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
+					outfile.write(sample_id+'_2'+'\t'+tube_label+'_2'+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
+				elif make_dup == 'no':
+					outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 # Close outfile
 outfile.close()
