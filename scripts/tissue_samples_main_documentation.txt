@@ -43,6 +43,8 @@ infile = sys.argv[1]
 # outfile
 outfile = open(sys.argv[2], 'w')
 
+bioreps_set = ['017834-2', '017842-2', '017901-2', '017911-1']
+
 # Iterate through the infile, collect stats, and reorganize data
 for line in open(infile):
 	# Write output header
@@ -63,6 +65,7 @@ for line in open(infile):
 		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'BIRD_ID'+'\t'+'PEN_ID'+'\t'+'DOD'+'\t'+'MORT_TYPE'+'\t'+'SEX'+'\t'+'TUMOR_NUM'+'\t'+'STORAGE'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\n')
 	# collect stats if not header
 	elif line[0] != '#':
+		make_dup = 'no'
 		line = line.rstrip()
 		col = line.split('\t')
 		bird_id = col[0]
@@ -159,7 +162,10 @@ for line in open(infile):
 				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 		# Iterate through tumors and write them to output file
 		for t_i, tumor in enumerate(t_list):
+			make_dup = 'no'
 			sample_id = bird_id + '-' + str(t_i + 1)
+			if sample_id in bioreps_set:
+				make_dup = 'yes'
 			# Filter out samples with no controls
 			if tumor != 'NA':	
 				# Tube label
@@ -215,7 +221,11 @@ for line in open(infile):
 				elif mort_type == 'D':
 					mort_type = 'disease'
 				# Write germline outputs
-				outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
+				if make_dup == 'yes':
+					outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
+					outfile.write(sample_id+'_2'+'\t'+tube_label+'_2'+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
+				elif make_dup == 'no':
+					outfile.write(sample_id+'\t'+tube_label+'\t'+germ_tum+'\t'+tissue+'\t'+bird_id+'\t'+pen_id+'\t'+dod+'\t'+mort_type+'\t'+sex+'\t'+str(tumor_num)+'\t'+bio_data+'\t'+tumor_score+'\t'+cohort+'\n')
 # Close outfile
 outfile.close()
 #################################################
@@ -323,16 +333,18 @@ grep -v "^#" ./data/tissue_collection_and_sampling_summer_2017.txt) > \
 
 # Prioritize samples based on these filters:
 # filter_1: All samples that underwent DNA-sequencing from Summer 2014 cohort (plus matching germlines)
-# filter_2: All samples that underwent RNA-sequencing from Summer 2014 cohort (plus matching germlines)
-# filter_3: Gonadal tumors with tumor score greater than or equal to 2 (plus matching germlines)
-# filter_4: The tumors from birds that possess multiple high quality tumors (plus matching germlines)
-# filter_5: Tumors that have a tumor score of 3 regardless of tissue (plus matching germlines)
-# filter_6: Tumors that have a tumor score of 2 regardless of tissue (plus matching germlines)
-# filter_7: Remaining samples (plus matching germlines)
+# filter_2: All samples that underwent RNA-sequencing from Summer 2014 cohort 
+# filter_3: Gonadal tumors with tumor score greater than or equal to 2 
+# filter_4: The tumors from birds that possess multiple high quality tumors 
+# filter_5: Tumors that have a tumor score of 3 regardless of tissue 
+# filter_6: Tumors that have a tumor score of 2 regardless of tissue 
+# filter_7: Remaining gonadal tumor samples
+# filter_8: Remaining tumor samples
+# filter_9: Remaining germline samples  
 
 python ./scripts/prioritize_tissue_samples_for_sampling.py \
 ./data/tissue_collection_and_sampling_2014_2017.int \
-./data/tissue_collection_and_sampling_2014_2017.txt
+./data/tissue_collection_and_sampling_2014_2017_unsorted.txt
 
 # ./scripts/prioritize_tissue_samples_for_sampling.py
 ##################################
@@ -344,6 +356,43 @@ infile = sys.argv[1]
 
 # outfile
 outfile = open(sys.argv[2], 'w')
+
+# Reference files
+dnaseq_list_file = '/Users/Alec/Documents/Bioinformatics/MDV_Project/databases/samples/all_samples_dnaseq_2014_017NNN-N.txt'
+rnaseq_list_file = '/Users/Alec/Documents/Bioinformatics/MDV_Project/databases/samples/all_samples_rnaseq_2014_017NNN-N.txt'
+microarray_list_file = '/Users/Alec/Documents/Bioinformatics/MDV_Project/databases/samples/all_samples_microarrays_2014_017NNN-N.txt'
+cyto_list_file = '/Users/Alec/Documents/Bioinformatics/MDV_Project/databases/samples/all_samples_cytogenetics_2014_017NNN-N.txt'
+immunohisto_list_file = '/Users/Alec/Documents/Bioinformatics/MDV_Project/databases/samples/all_samples_immunohistochem_2017.txt'
+
+# Create a dictionary for birds with mutliple high quality tumors
+birds2tumor_scores = {}
+# Iterate through file to contruct dictionary
+for line in open(infile):
+	if line[0] != '#':
+		line = line.rstrip()
+		col = line.split('\t')
+		bird_id = col[4]
+		tumor_score = col[11]
+		if bird_id not in birds2tumor_scores.keys():
+			birds2tumor_scores[bird_id] = [tumor_score]
+		else:
+			birds2tumor_scores[bird_id].append(tumor_score)
+
+# Read samples into set that have undergone each specific molecular test
+# make all sets into dictionary
+test_dic = {}
+for test_file in [dnaseq_list_file, rnaseq_list_file, microarray_list_file, cyto_list_file, immunohisto_list_file]:
+	for line in open(test_file):
+		if line[0] != '#':
+			line = line.rstrip()
+			sample = line
+			for test in ['dnaseq', 'rnaseq', 'microarrays', 'cytogenetics', 'immunohistochem']:
+				if re.search(test, test_file):
+					if test not in test_dic.keys():
+						test_dic[test] = set()
+						test_dic[test].add(sample)
+					else:
+						test_dic[test].add(sample)
 
 # Iterate through infile and collect stats for filters
 for line in open(infile):
@@ -360,16 +409,17 @@ for line in open(infile):
 		outfile.write('##STORAGE'+'\t'+'The storage strategy of tissue based on potential for biological sampling; DNA, RNA, cytogenetics, liquid_nitrogen, immunohistochem'+'\n')
 		outfile.write('##SAMPLING'+'\t'+'The actual biological tests that have been performed from sample; dna_seq, affy_array, rna_seq, cytogenetics, immunohistochem'+'\n')
 		outfile.write('##FILTER'+'\t'+'Justification for priority score'+'\n')
-		outfile.write('##PRIORITY'+'\t'+'Priority score (highest priority starts at 1)'+'\n')
 		outfile.write('###FILTERS:'+'\n')
 		outfile.write('###filter_1:'+'\t'+'All samples that underwent DNA-sequencing from Summer 2014 cohort (plus matching germlines)'+'\n')
-		outfile.write('###filter_2:'+'\t'+'All samples that underwent RNA-sequencing from Summer 2014 cohort (plus matching germlines)'+'\n')
-		outfile.write('###filter_3:'+'\t'+'Gonadal tumors with tumor score greater than or equal to 2 (plus matching germlines)'+'\n')
-		outfile.write('###filter_4:'+'\t'+'The tumors from birds that possess multiple high quality tumors (plus matching germlines)'+'\n')
-		outfile.write('###filter_5:'+'\t'+'Tumors that have a tumor score of 3 regardless of tissue (plus matching germlines)'+'\n')
-		outfile.write('###filter_6:'+'\t'+'Tumors that have a tumor score of 2 regardless of tissue (plus matching germlines)'+'\n')
-		outfile.write('###filter_7:'+'\t'+'Remaining samples (plus matching germlines)'+'\n')
-		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'SEX'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'TUMOR_NUM'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\t'+'STORAGE'+'\t'+'SAMPLING'+'\t'+'FILTER'+'\t'+'PRIORITY'+'\n')
+		outfile.write('###filter_2:'+'\t'+'All samples that underwent RNA-sequencing from Summer 2014 cohort'+'\n')
+		outfile.write('###filter_3:'+'\t'+'Gonadal tumors with tumor score greater than or equal to 2'+'\n')
+		outfile.write('###filter_4:'+'\t'+'The tumors from birds that possess multiple high quality tumors'+'\n')
+		outfile.write('###filter_5:'+'\t'+'Tumors that have a tumor score of 3 regardless of tissue'+'\n')
+		outfile.write('###filter_6:'+'\t'+'Tumors that have a tumor score of 2 regardless of tissue'+'\n')
+		outfile.write('###filter_7:'+'\t'+'Remaining gonadal tumor samples'+'\n')
+		outfile.write('###filter_8:'+'\t'+'Remaining tumor samples'+'\n')
+		outfile.write('###filter_9:'+'\t'+'Remaining germline samples'+'\n')
+		outfile.write('#SAMPLE_ID'+'\t'+'TUBE_LABEL'+'\t'+'SEX'+'\t'+'GERM_TUM'+'\t'+'TISSUE'+'\t'+'TUMOR_NUM'+'\t'+'TUMOR_SCORE'+'\t'+'COHORT'+'\t'+'STORAGE'+'\t'+'SAMPLING'+'\t'+'FILTER'+'\n')
 	elif line[0] != '#':
 		line = line.rstrip()
 		col = line.split('\t')
@@ -383,25 +433,90 @@ for line in open(infile):
 		mort_type = col[7]
 		sex = col[8]
 		tumor_num = col[9]
+		tumor_score = col[11]
+		cohort = col[12]
 		# Adjust storage
 		storage = set(col[10].split(';'))
 		if 'immunohistochem' in storage:
 			storage.discard('immunohistochem')
-		storage = ';'.join(map(str,storage))
+		if len(storage) > 0:
+			storage = ';'.join(map(str,storage))
+			if storage == '':
+				storage = 'na'
 		# Create a set for sampling
 		sampling = set()
-		# Read database files for each sample that has undergone specific test
-		
-		tumor_score = col[11]
-		cohort = col[12]
-
-
+		for test in ['dnaseq', 'rnaseq', 'microarrays', 'cytogenetics', 'immunohistochem']:
+			if sample_id in test_dic[test]:
+				sampling.add(test)
+		if len(sampling) > 0:
+			sampling = ';'.join(map(str,sampling))
+		else:
+			sampling = 'na'
+		# Create an if then for tumor score exception
+		if tumor_score == 'na':
+			tumor_score_com = '0'
+		else:
+			tumor_score_com = tumor_score
+		# Create a field for birds with multiple high quality tumors
+		score_sheet = []
+		if len(birds2tumor_scores[bird_id]) >= 3:
+			for score in birds2tumor_scores[bird_id]:
+				if score != 'na':
+					if int(score) >= 2:
+						score_sheet.append(score)
+		if len(score_sheet) >= 3:
+			heavy_hit_bird = 'yes'
+		else:
+			heavy_hit_bird = 'no'
+		# Create conditions for filters
+		# Samples already output
+		output_set = set()
+		# filter_1: All samples that underwent DNA-sequencing from Summer 2014 cohort (plus matching germlines)
+		if 'dnaseq' in sampling.split(';') and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '1'
+		# filter_2: All samples that underwent RNA-sequencing from Summer 2014 cohort 
+		elif 'rnaseq' in sampling.split(';') and germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '2'
+		# filter_3: Gonadal tumors with tumor score greater than or equal to 2 
+		elif tissue == 'gonad' and germ_tum != 'germline' and int(tumor_score_com) >= 2 and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '3'
+		# filter_4: The tumors from birds that possess multiple high quality tumors 
+		elif heavy_hit_bird == 'yes' and germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '4'
+		# filter_5: Tumors that have a tumor score of 3 regardless of tissue 
+		elif tumor_score == '3' and germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '5'
+		# filter_6: Tumors that have a tumor score of 2 regardless of tissue 
+		elif tumor_score == '2' and germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '6'
+		# filter_7: Remaining gonadal tumors 
+		elif tissue == 'gonad' and germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '7'	
+		# filter_8: Remaining tumors samples 
+		elif germ_tum != 'germline' and sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '8'
+		# filter_9: Remaining samples 
+		elif sample_id not in output_set:
+			output_set.add(sample_id)
+			filter_status = '9'
 		# Write to outfile
-		outfile.write(sample_id+'\t'+tube_label+'\t'+sex+'\t'+germ_tum+'\t'+tissue+'\t'+tumor_num+'\t'+tumor_score+'\t'+cohort+'\t'+storage+'\n')
+		outfile.write(sample_id+'\t'+tube_label+'\t'+sex+'\t'+germ_tum+'\t'+tissue+'\t'+tumor_num+'\t'+tumor_score+'\t'+cohort+'\t'+storage+'\t'+sampling+'\t'+filter_status+'\n')
 #Close outfile
 outfile.close()
 ##################################
 
+# Sort the samples based on filter and priority
+(grep "^#" ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt; \
+	grep -v "^#" ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt | sort -k11,11n) > \
+./data/tissue_collection_and_sampling_2014_2017.txt
 
 # Remove the intermediate file
 rm ./data/tissue_collection_and_sampling_2014_2017.int
