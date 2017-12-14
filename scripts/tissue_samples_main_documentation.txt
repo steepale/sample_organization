@@ -27,6 +27,9 @@ cd /Users/Alec/Documents/Bioinformatics/MDV_Project/sample_organization
 # but I would like to reorganize the data into tab delimited test files for organization purposes and data parsing
 # Location of excel file: ./data/Tumor_Sampling_12_02_16.xlsx
 
+# Make appropriate directories
+mkdir -p ./{data,scripts,analysis}
+
 # Create a new data scheme for tissue sampling
 python ./scripts/reformat_tissue_organization.py \
 ./data/tissue_collection_inadequate_format.txt \
@@ -468,6 +471,10 @@ for line in open(infile):
 			heavy_hit_bird = 'yes'
 		else:
 			heavy_hit_bird = 'no'
+		# Annotate with location
+
+
+
 		# Create conditions for filters
 		# Samples already output
 		output_set = set()
@@ -513,13 +520,38 @@ for line in open(infile):
 outfile.close()
 ##################################
 
+# Manually add the rnaseq control samples
+vi ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt
+
+# Change the word germline to normal
+sed -i -- 's/Germline/Normal/g' ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt
+sed -i -- 's/germline/normal/g' ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt
+sed -i -- 's/GERM/NORM/g' ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt
+
 # Sort the samples based on filter and priority
 (grep "^#" ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt; \
-	grep -v "^#" ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt | sort -k11,11n) > \
+grep -v "^#" ./data/tissue_collection_and_sampling_2014_2017_unsorted.txt | sort -k11,11n) > \
 ./data/tissue_collection_and_sampling_2014_2017.txt
 
 # Remove the intermediate file
 rm ./data/tissue_collection_and_sampling_2014_2017.int
+
+# Annotate these samples with storage location
+
+# Create matrixes of stored samples
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
